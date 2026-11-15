@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "RAM-99: Task Manager Survival - Turn-based grid strategy puzzle",
   "scripts": {
-    "dev": "bun run src/main.ts",
+    "dev": "bun run src/dev-server.ts",
     "test": "bun test",
-    "build": "bun build ./src/main.ts --outdir ./dist --minify --sourcemap=none --target=browser"
+    "build": "bun build ./src/main.ts --outdir ./dist --minify --sourcemap=none --target=browser && copy index.html dist\\index.html",
+    "start": "bun run src/dev-server.ts"
   },
   "dependencies": {},
   "devDependencies": {
