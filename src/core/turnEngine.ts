@@ -52,6 +52,8 @@ function createBoard(): BoardState {
 export class TurnEngine {
   private board: BoardState;
   private undoBuffer = new Uint8Array(256); // single-step undo (4 x 64 bytes)
+  private undoCpu = 3; // CPU saved before last action
+  private hasUndoState = false; // true only after a player action saved state
   private turn = 0;
   private cpu = 3;
   private maxCpu = 3;
@@ -243,11 +245,14 @@ export class TurnEngine {
 
   undo(): boolean {
     if (this.status !== GameStatus.PLAYING) return false;
+    if (!this.hasUndoState) return false;
     const buf = this.undoBuffer;
     this.board.cellType.set(buf.subarray(0, 64));
     this.board.cellTier.set(buf.subarray(64, 128));
     this.board.cellTimer.set(buf.subarray(128, 192));
     this.board.cellFlags.set(buf.subarray(192, 256));
+    this.cpu = this.undoCpu;
+    this.hasUndoState = false;
     detectClusters(this.board);
     return true;
   }
@@ -258,6 +263,8 @@ export class TurnEngine {
     buf.set(this.board.cellTier, 64);
     buf.set(this.board.cellTimer, 128);
     buf.set(this.board.cellFlags, 192);
+    this.undoCpu = this.cpu;
+    this.hasUndoState = true;
   }
 
   private areAdjacent(i: number, j: number): boolean {
@@ -376,6 +383,8 @@ export class TurnEngine {
 
     this.processAI();
     this.commitSpawns();
+
+    this.hasUndoState = false;
 
     this.turn++;
     const ram = calcRAMPercent(this.board);
