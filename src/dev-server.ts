@@ -3,7 +3,7 @@ import { serve } from 'bun';
 import path from 'node:path';
 import fs from 'node:fs';
 
-const PORT = 3000;
+const PORT = 5173;
 const DIST = path.join(process.cwd(), 'dist');
 
 serve({

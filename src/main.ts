@@ -49,11 +49,16 @@ function autoSave(): void {
 let touchStartX = 0;
 let touchStartY = 0;
 let touchStartTime = 0;
+let startCellIdx: number | null = null;
+let startCellEl: HTMLElement | null = null;
 
 gridContainer.addEventListener('pointerdown', (e) => {
   touchStartX = e.clientX;
   touchStartY = e.clientY;
   touchStartTime = performance.now();
+  const cell = (e.target as HTMLElement).closest('.cell') as HTMLElement | null;
+  startCellEl = cell;
+  startCellIdx = cell ? Number(cell.dataset['idx']) : null;
 }, { passive: true });
 
 gridContainer.addEventListener('pointerup', (e) => {
@@ -62,12 +67,14 @@ gridContainer.addEventListener('pointerup', (e) => {
   const dist = Math.hypot(dx, dy);
   const dt = performance.now() - touchStartTime;
 
+  const fromIdx = startCellIdx;
+  const targetEl = startCellEl;
+  startCellIdx = null;
+  startCellEl = null;
+
   // Only treat as swipe if far enough and quick enough
   if (dist < 18 || dt > 300) return;
-
-  const target = (e.target as HTMLElement).closest('.cell') as HTMLElement | null;
-  if (!target) return;
-  const fromIdx = Number((target as HTMLElement).dataset['idx']);
+  if (fromIdx === null || !targetEl) return;
 
   let toIdx = -1;
   if (Math.abs(dx) > Math.abs(dy)) {
@@ -91,8 +98,8 @@ gridContainer.addEventListener('pointerup', (e) => {
       autoSave();
     } else if ((engine.getBoard().cellFlags[fromIdx] ?? 0) & 1 || (engine.getBoard().cellFlags[toIdx] ?? 0) & 1) {
       // Frozen shake
-      target.classList.add('shake');
-      setTimeout(() => target.classList.remove('shake'), 150);
+      targetEl.classList.add('shake');
+      setTimeout(() => targetEl.classList.remove('shake'), 150);
     }
   }
 }, { passive: true });

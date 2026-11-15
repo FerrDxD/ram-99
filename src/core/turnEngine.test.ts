@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'bun:test';
-import { TurnEngine } from './turnEngine.ts';
-import { CELL_APP_TAB, CELL_MEMORY_LEAK, CELL_FREEZE_BLOATWARE } from './grid.ts';
+import { TurnEngine, GameStatus } from './turnEngine.ts';
+import { CELL_APP_TAB, CELL_MEMORY_LEAK } from './grid.ts';
 
 describe('turn engine RAM calculation', () => {
   it('starts with 5 starting App Tabs = 10% RAM', () => {
@@ -17,7 +17,7 @@ describe('turn engine RAM calculation', () => {
       board.cellTier[i] = 1;
     }
     const res = e.endTurn();
-    expect(res.status).toBe('kernel_panic');
+    expect(res.status).toBe(GameStatus.KERNEL_PANIC);
     expect(res.ramPercent).toBeGreaterThanOrEqual(99);
   });
 
